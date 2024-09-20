@@ -21,6 +21,9 @@ def main(args):
     if args.stlossfactor is not None:
         config.set('Train', 'st_loss_factor', str(args.stlossfactor))
 
+    if args.maxssim is not None:
+        config.set('Train', 'MAX_SSIM', str(args.maxssim))
+
     print("------------------------初始化模型-------------------------")
     model = AdvFaceGANAttack(config)
 
@@ -32,8 +35,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='基础配置文件', type=str, default='config/target.ini')
     parser.add_argument('--tms', help='训练所用所有白盒模型', type=str, default=None)
-    parser.add_argument('--pert', help='扰动下限', type=float, default=None)
+    parser.add_argument('--pert', help='扰动上限', type=float, default=None)
     parser.add_argument('--output', help='训练成果保存目录', type=str, default=None)
     parser.add_argument('--stlossfactor', help='stloss的因子', type=float, default=None)
+    parser.add_argument('--maxssim', help='ssim上限', type=float, default=None)
+
     args = parser.parse_args()
     main(args)

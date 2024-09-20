@@ -25,10 +25,8 @@ def main(args):
     model.eval()
 
     # 测试整个数据集
-    # model.start_testing()
-    # 测试单张
-    # model.generate_fake(source_img_path=r"C:\yy\datasets\lfw\lfw-aligned-112x112\Aaron_Peirsol\Aaron_Peirsol_0003.jpg",
-    #                     target_img_path=r"C:\yy\yy\source\Desktop\读研是一条艰苦的道路\1. 论文\做实验\myCode\4 FrAdv\AdvFaceGAN\data\celeba_hq-112x112\target\target.jpg")
+    model.start_testing()
+    # 生成单组对抗人脸
     # model.generate_fake(source_img_path=r"C:\yy\datasets\lfw\lfw-aligned-112x112\Aaron_Peirsol\Aaron_Peirsol_0003.jpg",
     #                     target_img_path=r"C:\yy\datasets\lfw\lfw-aligned-112x112\Aicha_El_Ouafi\Aicha_El_Ouafi_0003.jpg")
     # model.generate_fake(source_img_path=r"C:\yy\datasets\lfw\lfw-aligned-112x112\Gordon_McDonald\Gordon_McDonald_0001.jpg",
@@ -41,9 +39,7 @@ def main(args):
     #                     target_img_path=r"C:\yy\datasets\lfw\lfw-aligned-112x112\Winona_Ryder\Winona_Ryder_0016.jpg")
     # model.generate_fake(source_img_path=r"C:\yy\datasets\celeba-hq\celeba_hq-112x112\00005\00005.jpg",
     #                     target_img_path=r"C:\yy\datasets\celeba-hq\celeba_hq-112x112\00018\00018.jpg")
-    #
-    model.generate_fake(source_img_path=r"C:\yy\source\Desktop\读研是一条艰苦的道路\1. 论文\做实验\myCode\myCode\4 FrAdv\AdvFaceGAN\data\celeba_hq-112x112\WIN_20240809_14_03_26_Pro\1.jpg",
-                        target_img_path=r"C:\yy\source\Desktop\读研是一条艰苦的道路\1. 论文\做实验\myCode\myCode\4 FrAdv\AdvFaceGAN\data\celeba_hq-112x112\WIN_20240809_14_03_12_Pro\2.jpg")
+
 
 
 if __name__ == "__main__":
