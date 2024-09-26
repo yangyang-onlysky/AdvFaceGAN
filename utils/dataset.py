@@ -53,9 +53,8 @@ class Dataset():
         self.index_worker = None
         self.batch_queue = None
         self.batch_workers = None
-
         if path is not None:
-            self.init_from_path(path)
+            self.init_from_path(path,mode)
 
     def clear(self):
         del self.images
@@ -63,17 +62,17 @@ class Dataset():
         self.release_queue()
         self.__init__()
 
-    def init_from_path(self, path):
+    def init_from_path(self, path,mode):
         path = os.path.expanduser(path)
         _, ext = os.path.splitext(path)
         if os.path.isdir(path):
-            self.init_from_folder(path)
+            self.init_from_folder(path,mode)
         else:
             raise ValueError('Cannot initialize dataset from path: %s\n\
                 It should be either a folder' % path)
         print('%d images of %d classes loaded' % (len(self.images), len(self.classes)))
 
-    def init_from_folder(self, folder):
+    def init_from_folder(self, folder,mode):
         folder = os.path.expanduser(folder)
         class_names = os.listdir(folder)
         # list的append比array快 先list最后转
@@ -85,9 +84,9 @@ class Dataset():
             if os.path.isdir(class_dir):
                 image_names = os.listdir(class_dir)
                 image_paths = [os.path.join(class_dir, img_name) for img_name in image_names]
-                # # 低于2张图的没法和自己做混淆攻击，忽略
-                # if len(image_paths) < 2:
-                #     continue
+                # 低于2张图的没法和自己做混淆攻击，忽略
+                if mode == "untarget" and len(image_paths) < 2:
+                    continue
                 images.extend(image_paths)
                 self.classes.append(DataClass(class_name=class_name,
                                               label=label,
@@ -147,7 +146,6 @@ class Dataset():
             while len(classes_indices_batch) < batch_size:
                 classes_indices_batch.extend(self.index_queue.get(block=True, timeout=1000))
             assert len(classes_indices_batch) == batch_size
-
             sources = []
             targets = []
             sources_name = []

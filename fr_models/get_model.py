@@ -106,22 +106,22 @@ def getmodel(face_model, **kwargs):
     elif face_model == 'testfacenet':
         img_shape = (160, 160)
         model = testfacenet.InceptionResnetV1(num_classes=8631, device='cuda:0')
-        model.load_state_dict(torch.load('./fr_models/ckpts/facenet.pth'))
+        model.load_state_dict(torch.load('./fr_models/ckpts/facenet.pth', weights_only=True))
         model.eval()
         model.to("cuda:0")
     elif face_model == 'testir152':
         model = testir152.IR_152((112, 112))
-        model.load_state_dict(torch.load('./fr_models/ckpts/ir152.pth'))
+        model.load_state_dict(torch.load('./fr_models/ckpts/ir152.pth', weights_only=True))
         model.eval()
         model.to("cuda:0")
     elif face_model == 'testirse50':
         model = testirse.Backbone(50, 0.6, 'ir_se')
-        model.load_state_dict(torch.load('./fr_models/ckpts/irse50.pth'))
+        model.load_state_dict(torch.load('./fr_models/ckpts/irse50.pth', weights_only=True))
         model.eval()
         model.to("cuda:0")
     elif face_model == "testmobileface":
         model = testirse.MobileFaceNet(512)
-        model.load_state_dict(torch.load('./fr_models/ckpts/mobile_face.pth'))
+        model.load_state_dict(torch.load('./fr_models/ckpts/mobile_face.pth', weights_only=True))
         model.eval()
         model.to("cuda:0")
     else:

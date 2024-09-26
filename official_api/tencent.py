@@ -10,6 +10,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.iai.v20200303 import iai_client, models
 
+# get API Key API Secret from environment variable
 cred = credential.Credential(os.environ.get("TENCENTCLOUD_SECRET_ID"),
                              os.environ.get("TENCENTCLOUD_SECRET_KEY"))
 httpProfile = HttpProfile()

@@ -18,12 +18,12 @@ config = Config(
     endpoint='facebody.cn-shanghai.aliyuncs.com',
     region_id='cn-shanghai'
 )
-# 初始化Client
+# init Client
 client = Client(config)
 
 qps=2
 
-# 人脸比对
+# face compare
 def face_compare(face1_path, face2_path):
     compare_face_request = CompareFaceAdvanceRequest()
     streamA = open(face1_path, 'rb')
@@ -34,18 +34,15 @@ def face_compare(face1_path, face2_path):
         runtime_option = RuntimeOptions()
         response = client.compare_face_advance(compare_face_request, runtime_option)
         time.sleep(1.0 / qps)
-        # 获取整体结果
         return response.body.to_map()['Data']['Confidence']
     except Exception as error:
-        # 获取整体报错信息
         print(error)
     finally:
-        # 关闭流
         streamA.close()
         streamB.close()
     return None
 
-# 人脸搜索
+# face search
 def search_face(face_path, dbName, limit=5,  max_face_num=5, quality_score_threshold=50):
     stream = open(face_path, 'rb')
     search_face_request = SearchFaceAdvanceRequest(image_url_object=stream,
@@ -57,17 +54,14 @@ def search_face(face_path, dbName, limit=5,  max_face_num=5, quality_score_thres
         runtime_option = RuntimeOptions()
         response = client.search_face_advance(search_face_request, runtime_option)
         time.sleep(1.0 / qps)
-        # 获取整体结果
         return response.body.to_map()['Data']['MatchList']
     except Exception as error:
-        # 获取整体报错信息
         print(error)
     finally:
-        # 关闭流
         stream.close()
 
 
-# 创建人脸数据库
+# create face dbs
 def create_face_db(dbName):
     create_face_db_request = CreateFaceDbRequest(name=dbName)
     try:
@@ -75,23 +69,20 @@ def create_face_db(dbName):
         response = client.create_face_db_with_options(create_face_db_request, runtime_option)
         time.sleep(1.0 / qps)
     except Exception as error:
-      # 获取整体报错信息
       print(error)
 
-# 查询人脸数据库列表
+# list face dbs
 def list_face_dbs():
     list_face_dbs_request = ListFaceDbsRequest()
     try:
         runtime_option = RuntimeOptions()
         response = client.list_face_dbs_with_options(list_face_dbs_request, runtime_option)
         time.sleep(1.0 / qps)
-        # 获取整体结果
         return response.body.to_map()['Data']['DbList']
     except Exception as error:
-        # 获取整体报错信息
         print(error)
 
-# 增加人脸样本
+# add face entity
 def add_face_entity(dbName, entityId, labels=None):
     add_face_entity_request = AddFaceEntityRequest(db_name=dbName,
                                                    entity_id=entityId,
@@ -101,10 +92,9 @@ def add_face_entity(dbName, entityId, labels=None):
         response = client.add_face_entity_with_options(add_face_entity_request, runtime_option)
         time.sleep(1.0 / qps)
     except Exception as error:
-        # 获取整体报错信息
         print(error)
 
-# 查询人脸样本
+# get face entity
 def get_face_entity(dbName, entityId):
     get_face_entity_request = GetFaceEntityRequest(db_name=dbName,
                                                    entity_id=entityId)
@@ -112,28 +102,22 @@ def get_face_entity(dbName, entityId):
         runtime_option = RuntimeOptions()
         response = client.get_face_entity_with_options(get_face_entity_request, runtime_option)
         time.sleep(1.0 / qps)
-        # 获取整体结果
         return response.body.to_map()['Data']
     except Exception as error:
-        # 获取整体报错信息
         print(error)
 
-# 查询人脸样本列表
+# list face entities
 def list_face_entities(dbName):
     list_face_entities_request = ListFaceEntitiesRequest(db_name=dbName)
     try:
         runtime_option = RuntimeOptions()
         response = client.list_face_entities_with_options(list_face_entities_request, runtime_option)
         time.sleep(1.0 / qps)
-        # 获取整体结果
         return response.body.to_map()['Data']['Entities']
     except Exception as error:
-        # 获取整体报错信息
         print(error)
 
-# 更新人脸样本
-
-# 添加人脸数据
+# add face
 def add_face(dbName, entityId, face_path, extraData,
              quality_score_threshold=50,
              similarity_score_threshold_in_entity=50,
@@ -151,12 +135,11 @@ def add_face(dbName, entityId, face_path, extraData,
         response = client.add_face_advance(add_face_request, runtime_option)
         time.sleep(1.0 / qps)
     except Exception as error:
-        # 获取整体报错信息
         print(error)
     finally:
         stream.close()
 
-# 批量添加人脸数据
+# batch add face
 def batch_add_face(dbName, entityId, face_paths,
                    quality_score_threshold=50,
                    similarity_score_threshold_in_entity=50,
@@ -177,7 +160,6 @@ def batch_add_face(dbName, entityId, face_paths,
         response = client.batch_add_faces_advance(batch_add_face_request, runtime_option)
         time.sleep(1.0 / qps)
     except Exception as error:
-        # 获取整体报错信息
         print(error)
     finally:
         for stream in streams:
@@ -191,10 +173,9 @@ def delete_face(dbName, faceId):
         response = client.delete_face_with_options(delete_face_request, runtime_option)
         time.sleep(1.0 / qps)
     except Exception as error:
-        # 获取整体报错信息
         print(error)
 
-# 删除人脸样本
+# delete face entity
 def delete_face_entity(dbName, entityId):
     delete_face_entity_request = DeleteFaceEntityRequest(db_name=dbName, entity_id=entityId)
     try:
@@ -205,7 +186,7 @@ def delete_face_entity(dbName, entityId):
         # 获取整体报错信息
         print(error)
 
-# 删除人脸数据库
+# delete face db
 def delete_face_db(dbName):
     delete_face_db_request = DeleteFaceDbRequest(name=dbName)
     try:
@@ -216,6 +197,7 @@ def delete_face_db(dbName):
         # 获取整体报错信息
         print(error)
 
+# clear face db
 def clear_db(dbName):
     entities = list_face_entities(dbName)
     for entity in tqdm(entities,total=len(entities)):
@@ -245,7 +227,7 @@ if __name__ == '__main__':
     # add_face_entity('test', 3)
     # result = get_face_entity('test', 3)
     # result = list_face_entities('test')
-    # add_face('test',3,r'D:/yy/source/Desktop/读研是一条艰苦的道路/1. 论文/做实验/myCode/4 FrAdv/AdvFaceGAN/test/fake.png','fake_Aaron_Peirsol_0003.jpg')
+    # add_face('test',3,r'D:/yy/source/Desktop/myCode/4 FrAdv/AdvFaceGAN/test/fake.png','fake_Aaron_Peirsol_0003.jpg')
     # batch_add_face('test', 3, [
     #     r'D:\datasets\debug\Aaron_Peirsol\Aaron_Peirsol_0002.jpg',
     #     r'D:\datasets\debug\Aaron_Peirsol\Aaron_Peirsol_0003.jpg',
@@ -257,7 +239,7 @@ if __name__ == '__main__':
     # clear_db('test')
     # upload_db('test', r'D:\datasets\debug')
 
-    result = face_compare(face1_path=r"D:/yy/source/Desktop/读研是一条艰苦的道路/1. 论文/做实验/myCode/4 FrAdv/AdvFaceGAN/test/fake.png",
+    result = face_compare(face1_path=r"D:/yy/source/Desktop/myCode/4 FrAdv/AdvFaceGAN/test/fake.png",
                           face2_path=r"D:\datasets\debug\Aaron_Peirsol\Aaron_Peirsol_0004.jpg")
 
     # result = search_face(face_path=r"C:\Users\28769\Pictures\Camera Roll\img1.jpg", dbName='test')

@@ -1,4 +1,4 @@
-# 导入系统库并定义辅助函数
+
 import json
 import os
 import time
@@ -8,13 +8,10 @@ from official_api.FacePPSDK.facepp import API,File
 # 导入图片处理类
 import official_api.FacePPSDK.ImagePro
 
-
-# 此方法专用来打印api返回的信息
 def json_print(obj):
     print(json.dumps(obj, indent=2))
 
-# 初始化对象，进行api的调用工作
-# 从环境变量获取API Key API Secret
+# get API Key API Secret from environment variable
 API_KEY = os.environ.get('FACEPP_API_KEY')
 API_SECRET = os.environ.get('FACEPP_API_SECRET')
 api = API(API_KEY, API_SECRET)

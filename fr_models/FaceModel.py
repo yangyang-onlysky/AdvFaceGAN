@@ -15,7 +15,7 @@ def get_model(url, net, device='cuda'):
     model_name = url.split('/')[-1]
     try:
         print('Load existing checkpoint')
-        checkpoint = torch.load('./fr_models/ckpts/{}'.format(model_name),
+        checkpoint = torch.load('./fr_models/ckpts/{}'.format(model_name), weights_only=True,
                 map_location=lambda storage, loc: storage.cuda())
     except Exception:
         print('No existing checkpoint, now downloading online')
@@ -30,7 +30,7 @@ def get_model(url, net, device='cuda'):
             './fr_models/ckpts/{}'.format(model_name))
         print('Finish downloading')
         print('Load checkpoint')
-        checkpoint = torch.load('./fr_models/ckpts/{}'.format(model_name), 'cpu')
+        checkpoint = torch.load('./fr_models/ckpts/{}'.format(model_name), 'cpu', weights_only=True)
 
     if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
         net.load_state_dict(checkpoint['state_dict'])

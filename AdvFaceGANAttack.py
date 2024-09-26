@@ -20,7 +20,7 @@ from utils.dataset import *
 
 
 # *************************
-# AdvFaceGAN 主模型
+# AdvFaceGAN main module
 # *************************
 class AdvFaceGANAttack(nn.Module):
     def __init__(self, config):
@@ -30,13 +30,14 @@ class AdvFaceGANAttack(nn.Module):
         self.config = config
 
         self.mode = config.get('Setting', 'mode')
-        print("当前模式：" + self.mode)
+        print("now mode：" + self.mode)
 
+        # Base Configuration
         gpu = config.getint('Setting', 'gpu')
         self.device = torch.device('cuda:{}'.format(gpu)) if gpu >= 0 else torch.device('cpu')
         self.n_threads = config.getint('Setting', 'n_threads')
 
-        # 数据集相关
+        # About Dataset
         self.train_dataset_dir = config.get('Dataset', 'train_dataset_dir')
         self.train_transforms = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(),  # 图片转为Tensor [0,1]
@@ -49,36 +50,34 @@ class AdvFaceGANAttack(nn.Module):
             torchvision.transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True),  # 归一化
         ])
 
-        # 模型训练相关
+        # About Traing
         self.train_total_epoch = config.getint('Train', 'train_total_epoch')
         self.train_epoch_size = config.getint('Train', 'train_epoch_size')
         self.train_batch_size = config.getint('Train', 'train_batch_size')
         self.train_model_name_list = eval(config.get('Train', 'train_model_name_list'))
         self.lr = config.getfloat('Train', 'lr')
 
-        # 预训练模型
+        # pre-trained model setting
+        self.models_info = {}
         self.global_step = config.getint('Train', 'global_step')
         self.pretrained_model_dir = config.get('Train', 'pretrained_model_dir')
         self.train_epoch_id = config.getint('Train', 'train_epoch_id')
 
-        # 模型验证相关
+        # About Validating
         self.val_model_name_list = eval(config.get('Val', 'val_model_name_list'))
         self.val_epoch_size = config.getint('Val', 'val_epoch_size')
         self.val_batch_size = config.getint('Val', 'val_batch_size')
 
-        # FR预训练模型
-        self.models_info = {}
-
-        # 模型存储相关
+        # About Save
         self.save_dir = config.get('Save', 'save_dir')
 
-        # 模型测试相关
+        # About Testing
         self.test_model_dir = config.get('Test', 'test_model_dir')
         self.test_epoch_id = config.getint('Test', 'test_epoch_id')
         self.test_model_name_list = eval(config.get('Test', 'test_model_name_list'))
         self.test_batch_size = config.getint('Test', 'test_batch_size')
 
-        # 损失计算
+        # loss storage
         self.d_true_loss = []
         self.d_fake_loss = []
         self.gp_loss = []
@@ -89,30 +88,30 @@ class AdvFaceGANAttack(nn.Module):
         self.per_loss = []
         self.st_loss = []
         self.G_loss = []
-        # 结果图
+        # image temp
         self.sources = None
         self.targets = None
         self.perts = None
         self.fakes = None
 
-        # 损失函数相关
+        # loss factor
         self.per_loss_factor = config.getfloat('Train', 'per_loss_factor')
         self.adv_loss_factor = config.getfloat('Train', 'adv_loss_factor')
         self.st_loss_factor = config.getfloat('Train', 'st_loss_factor')
         self.MAX_PERTURBATION = config.getfloat('Train', 'MAX_PERTURBATION')
         self.MAX_SSIM = config.getfloat('Train', 'MAX_SSIM')
 
-        # 判别器
+        # Discriminator
         self.discriminator = init_net(ResNetDiscriminator(), self.device)
-        # 生成器
+        # Generator
         self.generator = init_net(Generator(is_target=(self.mode == 'target')), self.device)
 
-        # 判别器优化器
+        # Discriminator optimizer
         self.discr_opt = torch.optim.Adam(self.discriminator.parameters(),
                                           lr=self.lr,
                                           betas=(0.5, 0.999),
                                           weight_decay=0.0001)
-        # 生成器优化器
+        # Generator optimizer
         self.gen_opt = torch.optim.Adam(self.generator.parameters(),
                                         lr=self.lr,
                                         betas=(0.5, 0.999),
@@ -121,7 +120,7 @@ class AdvFaceGANAttack(nn.Module):
         self.to(self.device)
 
     def re_init(self):
-        # 损失
+        # losses
         self.d_true_loss = []
         self.d_fake_loss = []
         self.gp_loss = []
@@ -132,7 +131,7 @@ class AdvFaceGANAttack(nn.Module):
         self.per_loss = []
         self.st_loss = []
         self.G_loss = []
-        # 结果图
+        # images
         self.sources = None
         self.targets = None
         self.perts = None
@@ -159,55 +158,55 @@ class AdvFaceGANAttack(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    # 更新判别器
+    # update Discriminator
     def update_discriminator(self, source_faces, target_faces):
         self.discr_opt.zero_grad()
 
         source_faces = source_faces.clone().detach().to(self.device)
         target_faces = target_faces.clone().detach().to(self.device)
-        # 调用生成器生成对抗人脸
+        # Call the generator to generate adversary faces
         _, fake_afters = self.generator(sources=source_faces,targets=None if self.mode == "untarget" else target_faces)
 
-        # 调用判别器推理
+        # Call discriminator to inference embedding
         out_real = self.discriminator(source_faces)
         loss_true = torch.mean(out_real)
         out_fake = self.discriminator(fake_afters.detach())
         loss_fake = torch.mean(out_fake)
 
-        # 梯度惩罚
+        # Gradient penalty
         lambda_gp = 10
         gradient_penalty = self.compute_gradient_penalty(source_faces.data, fake_afters.data)
         loss_gp = lambda_gp * gradient_penalty
 
-        # 判别损失累加
+        # L_D
         loss_d = loss_fake - loss_true + loss_gp
 
         loss_d.backward()
         self.discr_opt.step()
 
-        # 记录信息
+        # recording
         self.d_true_loss.append(loss_true.item())
         self.d_fake_loss.append(loss_fake.item())
         self.gp_loss.append(loss_gp.item())
         self.D_loss.append(loss_d.item())
 
 
-    # 更新生成器
+    # update Generator
     def update_gen(self, source_faces, target_faces):
         self.gen_opt.zero_grad()
 
         source_faces = source_faces.clone().detach().to(self.device)
         target_faces = target_faces.clone().detach().to(self.device)
 
-        # 调用生成器生成对抗人脸
+        # Call the generator to generate adversary faces
         perturbs, fake_afters = self.generator(sources=source_faces, targets=None if self.mode == "untarget" else target_faces)
 
-        # 调用判别器推理
+        # Call discriminator to inference embedding
         fake_outs = self.discriminator(fake_afters)
-        # 判别损失
+        # L_gan
         loss_gan = -torch.mean(fake_outs)
 
-        # 对抗损失 集成模型
+        # L_adv
         overall_tar_loss = torch.tensor([], device=self.device)
         for i, model_name in enumerate(self.train_model_name_list):
             if model_name not in self.models_info.keys():
@@ -220,23 +219,23 @@ class AdvFaceGANAttack(nn.Module):
             overall_tar_loss = torch.cat((overall_tar_loss, tar_loss), dim=0)
         loss_adv = self.adv_loss_factor * torch.mean(overall_tar_loss)
 
-        # 扰动损失 二范数 控制幅度 尽可能小，但不低于指定量以激活
+        # L_pert
         loss_per = self.per_loss_factor * torch.mean(
             torch.maximum(torch.zeros(perturbs.shape[0], device=self.device) + self.MAX_PERTURBATION,
                           torch.norm(perturbs.view(perturbs.shape[0], -1), dim=1)))
 
-        # 结构损失  1-ssim尽可能小，
+        # L_st
         loss_st = self.st_loss_factor * torch.mean(
             torch.maximum(torch.zeros(perturbs.shape[0], device=self.device) + (1-self.MAX_SSIM),
                           1-ssim(source_faces, fake_afters)))
 
-        # 生成损失累加
+        # L_G
         loss_g = loss_gan + loss_adv + loss_per + loss_st
 
         loss_g.backward()
         self.gen_opt.step()
 
-        # 记录
+        # recording
         self.gan_loss.append(loss_gan.item())
         self.adv_loss.append(loss_adv.item())
         self.per_loss.append(loss_per.item())
@@ -266,9 +265,9 @@ class AdvFaceGANAttack(nn.Module):
                   self.st_loss[-1],
               ))
         if now_batch == batch_num:
-            # 创建日志摘要写入器
+            # Create the log summary writer
             writer = SummaryWriter(self.save_dir+'/log')
-            # 记录标量数据
+            # Recording scalar data
             writer.add_scalar("loss/D_loss", np.mean(self.D_loss), self.global_step)
             writer.add_scalar("loss/d_true_loss", np.mean(self.d_true_loss), self.global_step)
             writer.add_scalar("loss/d_fake_loss", np.mean(self.d_fake_loss), self.global_step)
@@ -279,7 +278,7 @@ class AdvFaceGANAttack(nn.Module):
             writer.add_scalar("loss/adv_loss", np.mean(self.adv_loss), self.global_step)
             writer.add_scalar("loss/per_loss", np.mean(self.per_loss), self.global_step)
             writer.add_scalar("loss/st_loss", np.mean(self.st_loss), self.global_step)
-            # 记录图像数据
+            # Recording image data
             # writer.add_image("image/source{0}".format(self.global_step), self.sources[0], self.global_step)
             # writer.add_image("image/target{0}".format(self.global_step), self.targets[0], self.global_step)
             # writer.add_image("image/pert{0}".format(self.global_step), self.perts[0], self.global_step)
@@ -297,26 +296,26 @@ class AdvFaceGANAttack(nn.Module):
             self.global_step += 1
 
     def train_epoch(self, epoch_id, train_set):
-        # 开始训练前清空旧损失
+        # reset before you start new training
         self.re_init()
-        print("----------------------第{0}轮：开始训练-----------------------".format(epoch_id))
+        print("----------------------epoch {0}：start training-----------------------".format(epoch_id))
         for batch_id in range(0, self.train_epoch_size):
             batch = train_set.pop_batch_queue()
-            # 获取对应的批次数据
+            # get attacker face and victim face
             source_faces = batch['sources']
             target_faces = batch['targets']
-            # 更新判别器
+            # update Discriminator
             self.update_discriminator(source_faces, target_faces)
-            # 更新生成器
+            # update Generator
             self.update_gen(source_faces, target_faces)
-            # 保存可视化图像并输出训练日志
+            # Save faces and output training logs
             self.visualization(epoch_id, batch_id + 1, self.train_epoch_size)
 
     @torch.no_grad()
     def validate_epoch(self, epoch_id, validate_set):
-        print("----------------------第{0}轮：开始验证-----------------------".format(epoch_id))
+        print("----------------------epoch {0}：start validating-----------------------".format(epoch_id))
         for model_name in self.val_model_name_list:
-            print("--------------------第{0}轮：开始验证 {1}---------------------".format(epoch_id, model_name))
+            print("--------------------epoch {0}：start validating {1}---------------------".format(epoch_id, model_name))
             ssim_scores = []
             psnr_socres = []
             mse_scores = []
@@ -326,24 +325,24 @@ class AdvFaceGANAttack(nn.Module):
                 self.models_info[model_name] = getmodel(model_name)
             model, img_shape = self.models_info[model_name]
             for _ in tqdm(range(0, self.val_epoch_size), total=self.val_epoch_size):
-                # 获取对应的批次数据
+                # get batch data
                 batch = validate_set.pop_batch_queue()
-                # 调用生成器生成对抗人脸
+                # call the generator to generate adversary faces
                 source_faces = batch['sources'].to(self.device)
                 target_faces = batch['targets'].to(self.device)
                 _, fake_afters = self.generator(sources=source_faces, targets=None if self.mode == "untarget" else target_faces)
-                # 计算视觉指标
+                # computed Visual Quality Metric
                 source_faces = (source_faces * 0.5 + 0.5) * 255
                 fake_afters = (fake_afters * 0.5 + 0.5) * 255
                 target_faces = (target_faces * 0.5 + 0.5) * 255
                 ssim_scores.append(ssim(source_faces, fake_afters, data_range=255.0).item())
                 psnr_socres.append(psnr(source_faces, fake_afters).item())
                 mse_scores.append(F.mse_loss(source_faces, fake_afters).item())
-                # 提取人脸嵌入
+                # extract face embedding
                 emb_source = model.forward(F.interpolate(source_faces, size=img_shape, mode='bilinear'))
                 emb_fake_after = model.forward(F.interpolate(fake_afters, size=img_shape, mode='bilinear'))
                 emb_target = model.forward(F.interpolate(target_faces, size=img_shape, mode='bilinear'))
-                # 余弦相似度评估
+                # computed Cosine similarity
                 src_simi_scores.extend(torch.cosine_similarity(emb_source, emb_target).tolist())
                 rob_simi_scores.extend(torch.cosine_similarity(emb_fake_after, emb_target).tolist())
 
@@ -355,27 +354,27 @@ class AdvFaceGANAttack(nn.Module):
                 score > th if self.mode == "untarget" else score < th for score in rob_simi_scores) / len(
                 rob_simi_scores)
             print(model_name, " benchmark rate:%f" % threshold_lfw[model_name]['cos_acc'])
-            print(model_name, " 攻击前 success rate:%f" % src_success_rate)
-            print(model_name, " 平均 ssim:%f" % np.mean(ssim_scores))
-            print(model_name, " 平均 psnr:%f" % np.mean(psnr_socres))
-            print(model_name, " 平均 mse:%f" % np.mean(mse_scores))
-            print(model_name, " 攻击后 success rate:%f" % rob_success_rate)
+            print(model_name, " before attack success rate:%f" % src_success_rate)
+            print(model_name, " average ssim:%f" % np.mean(ssim_scores))
+            print(model_name, " average psnr:%f" % np.mean(psnr_socres))
+            print(model_name, " average mse:%f" % np.mean(mse_scores))
+            print(model_name, " after attack success rate:%f" % rob_success_rate)
 
     @torch.no_grad()
     def save_model(self, epoch_id):
-        if epoch_id % 10 == 0:  # 加条件少存一点
-            print("----------------------第{0}轮：保存模型-----------------------".format(epoch_id))
-            # 保存模型
+        if epoch_id % 10 == 0:  # Add conditions for use less storage space
+            print("----------------------epoch{0}：saving model-----------------------".format(epoch_id))
+            # save model
             os.makedirs(self.save_dir+'/model', exist_ok=True)
-            # 保存生成器的参数
+            # Save the generator's parameters
             torch.save(self.generator.state_dict(), '%s/%05d_generator.pth' % (self.save_dir+'/model', epoch_id))
-            # 保存判别器的参数
+            # Save the discriminator's parameters
             torch.save(self.discriminator.state_dict(), '%s/%05d_discriminator.pth' % (self.save_dir+'/model', epoch_id))
 
     def start_training(self):
-        print("---------------------划分训练集与验证集----------------------")
+        print("---------------------cut train set and test set-----------------")
         train_set, validate_set = Dataset(self.train_dataset_dir, self.mode).separate_by_ratio(0.9)
-        print("-----------------------启动分批队列------------------------")
+        print("-----------------------start batch queue------------------------")
         train_set.start_batch_queue(
             self.train_batch_size,
             batch_format="random_samples",
@@ -390,12 +389,12 @@ class AdvFaceGANAttack(nn.Module):
                 num_threads=self.n_threads
             )
         if self.global_step != 0:
-            print("-----------------------加载预训练模型------------------------")
+            print("--------------------Load the pre-trained model---------------------")
             self.load_model(self.pretrained_model_dir, self.train_epoch_id)
         print("---------------------------------------------------------")
-        print("-----------------------开始模型训练------------------------")
+        print("--------------------Start model training-----------------")
         print("---------------------------------------------------------")
-        print("-----------------------保存训练配置------------------------")
+        print("--------- ----Save training configuration----------------")
         os.makedirs(self.save_dir, exist_ok=True)
         with open(self.save_dir + '/train_config.ini', 'w', encoding='utf-8') as fp:
             self.config.write(fp)
@@ -408,29 +407,29 @@ class AdvFaceGANAttack(nn.Module):
             # 保存
             self.save_model(epoch_id)
         print("---------------------------------------------------------")
-        print("-----------------------模型训练结束------------------------")
+        print("------------------End of model training------------------")
         print("---------------------------------------------------------")
 
     @torch.no_grad()
     def start_testing(self):
-        print("------------------------加载测试集-------------------------")
+        print("---------------------Load test set-----------------------")
         test_set = Dataset(self.test_dataset_dir, self.mode)
-        print("-----------------------启动分批队列------------------------")
+        print("------------------start batch queue----------------------")
         test_set.start_batch_queue(
             self.test_batch_size,
             batch_format="random_samples",
             transforms=self.test_transforms,
             num_threads=self.n_threads,
         )
-        # 加载测试模型参数
+        # Load test parameters
         self.load_model(self.test_model_dir, self.test_epoch_id)
         print("---------------------------------------------------------")
-        print("-----------------------开始模型测试------------------------")
+        print("------------------Start model evaluating--------------------")
         print("---------------------------------------------------------")
         test_epoch_size = 6000 // self.test_batch_size
-        # 各模型相似分数字典
+        # Calculate each model's metric
         for model_name in self.test_model_name_list:
-            print("--------------------开始测试 {0}---------------------".format(model_name))
+            print("-----------------start evaluate {0}-------------------".format(model_name))
             ssim_scores = []
             psnr_socres = []
             mse_scores = []
@@ -440,24 +439,24 @@ class AdvFaceGANAttack(nn.Module):
                 self.models_info[model_name] = getmodel(model_name)
             model, img_shape = self.models_info[model_name]
             for _ in tqdm(range(test_epoch_size)):
-                # 获取对应的批次数据
+                # get batch data
                 batch = test_set.pop_batch_queue()
-                # 调用生成器生成对抗人脸
+                # Call the generator to generate adversary faces
                 source_faces = batch['sources'].to(self.device)
                 target_faces = batch['targets'].to(self.device)
                 perts, fake_afters = self.generator(sources=source_faces, targets=None if self.mode == "untarget" else target_faces)
-                # 计算视觉指标
+                # calculate visual quality metric
                 source_faces = (source_faces*0.5+0.5)*255
                 fake_afters = (fake_afters*0.5+0.5)*255
                 target_faces = (target_faces*0.5+0.5)*255
                 ssim_scores.append(ssim(source_faces, fake_afters, data_range=255.0).item())
                 psnr_socres.append(psnr(source_faces, fake_afters).item())
                 mse_scores.append(F.mse_loss(source_faces, fake_afters).item())
-                # 提取人脸嵌入
+                # extract face embedding
                 emb_source = model.forward(F.interpolate(source_faces, size=img_shape, mode='bilinear'))
                 emb_fake_after = model.forward(F.interpolate(fake_afters, size=img_shape, mode='bilinear'))
                 emb_target = model.forward(F.interpolate(target_faces, size=img_shape, mode='bilinear'))
-                # 余弦相似度评估
+                #  evaluation cosine similarity
                 src_simi_scores.extend(torch.cosine_similarity(emb_source, emb_target).tolist())
                 rob_simi_scores.extend(torch.cosine_similarity(emb_fake_after, emb_target).tolist())
             th = threshold_lfw[model_name]['cos']
@@ -468,19 +467,19 @@ class AdvFaceGANAttack(nn.Module):
                 score > th if self.mode == "untarget" else score < th for score in rob_simi_scores) / len(
                 rob_simi_scores)
             print(model_name, " benchmark rate:%f" % threshold_lfw[model_name]['cos_acc'])
-            print(model_name, " 攻击前 success rate:%f" % src_success_rate)
-            print(model_name, " 平均 ssim:%f" % np.mean(ssim_scores))
-            print(model_name, " 平均 psnr:%f" % np.mean(psnr_socres))
-            print(model_name, " 平均 mse:%f" % np.mean(mse_scores))
-            print(model_name, " 攻击后 success rate:%f" % rob_success_rate)
-            print(model_name, " 攻击 success rate:%f" % (src_success_rate-rob_success_rate))
+            print(model_name, " before attack success rate:%f" % src_success_rate)
+            print(model_name, " average ssim:%f" % np.mean(ssim_scores))
+            print(model_name, " average psnr:%f" % np.mean(psnr_socres))
+            print(model_name, " average mse:%f" % np.mean(mse_scores))
+            print(model_name, " after attack success rate:%f" % rob_success_rate)
+            print(model_name, " attack success rate:%f" % (src_success_rate-rob_success_rate))
         print("---------------------------------------------------------")
-        print("-----------------------模型测试结束------------------------")
+        print("-----------------End of model evaluate-------------------")
         print("---------------------------------------------------------")
 
     @torch.no_grad()
     def generate_fake(self, source_img_path, target_img_path=None):
-        # 加载测试模型参数
+        # Load the test model parameters
         self.load_model(self.test_model_dir, self.test_epoch_id)
         source_face = torch.unsqueeze(self.test_transforms(Image.open(source_img_path).convert('RGB')), dim=0).to(self.device)
         if self.mode == "target":
@@ -499,8 +498,8 @@ class AdvFaceGANAttack(nn.Module):
         return perts, fake_after
 
     def load_model(self, model_dir, epoch_id):
-        # 加载配置文件中指定的预训练模型参数
-        model_generator_dict = torch.load(model_dir + '/' + '%05d_generator.pth' % epoch_id)
-        model_discriminator_dict = torch.load(model_dir + '/' + '%05d_discriminator.pth' % epoch_id)
+        # Loads the pretrained model parameters specified in the configuration file
+        model_generator_dict = torch.load(model_dir + '/' + '%05d_generator.pth' % epoch_id, weights_only=True)
+        model_discriminator_dict = torch.load(model_dir + '/' + '%05d_discriminator.pth' % epoch_id, weights_only=True)
         self.generator.load_state_dict(model_generator_dict)
         self.discriminator.load_state_dict(model_discriminator_dict)

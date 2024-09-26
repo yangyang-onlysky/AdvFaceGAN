@@ -64,7 +64,7 @@ class ResnetBlock(nn.Module):
         return out
 
 
-# 生成器网络（使用普通残差块）
+# Generator Network
 class Generator(nn.Module):
     def __init__(self, is_target=False):
         super(Generator, self).__init__()
@@ -107,7 +107,6 @@ class Generator(nn.Module):
         return perturb, output
 
 
-# 判别器网络（使用残差块）
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
         super(ResidualBlock, self).__init__()
@@ -129,7 +128,7 @@ class ResidualBlock(nn.Module):
         out = F.relu(out)
         return out
 
-
+# Discriminator Network
 class ResNetDiscriminator(nn.Module):
     def __init__(self):
         super(ResNetDiscriminator, self).__init__()
@@ -191,23 +190,23 @@ import unittest
 
 class TestModel(unittest.TestCase):
     def test_generator_forward(self):
-        source_tensor = torch.randn(10, 3, 112, 112)  # 创建一个随机张量
-        target_tensor = torch.randn(10, 3, 112, 112)  # 创建一个随机张量
+        source_tensor = torch.randn(10, 3, 112, 112)
+        target_tensor = torch.randn(10, 3, 112, 112)
         model = Generator(is_target=True)
         pertub, output = model(source_tensor, target_tensor)
         self.assertEqual((10, 3, 112, 112), output.shape)
 
     def test_generator_backward(self):
-        source_tensor = torch.randn(10, 3, 112, 112).requires_grad_()  # 创建一个随机张量
-        target_tensor = torch.randn(10, 3, 112, 112)  # 创建一个随机张量
+        source_tensor = torch.randn(10, 3, 112, 112).requires_grad_()
+        target_tensor = torch.randn(10, 3, 112, 112)
         model = Generator(is_target=False)
         pertub, output = model(sources=source_tensor)
-        output.sum().backward()  # 执行反向传播
-        self.assertIsNotNone(source_tensor.grad)  # 检查梯度是否被计算
+        output.sum().backward()
+        self.assertIsNotNone(source_tensor.grad)
 
     def test_discriminator_forward(self):
         model = ResNetDiscriminator()
-        input_tensor = torch.randn(10, 3, 112, 112)  # 创建一个随机张量
+        input_tensor = torch.randn(10, 3, 112, 112)
         output = model(input_tensor)
         self.assertEqual((10, 1), output.shape)
 
@@ -215,8 +214,8 @@ class TestModel(unittest.TestCase):
         model = ResNetDiscriminator()
         input_tensor = torch.randn(10, 3, 112, 112, requires_grad=True)
         output = model(input_tensor)
-        output.sum().backward()  # 执行反向传播
-        self.assertIsNotNone(input_tensor.grad)  # 检查梯度是否被计算
+        output.sum().backward()
+        self.assertIsNotNone(input_tensor.grad)
 
 
 if __name__ == '__main__':

@@ -328,7 +328,7 @@ def load_weights(mdl, name):
             r = s.get(path, allow_redirects=True)
             with open(cached_file, 'wb') as f:
                 f.write(r.content)
-        state_dict.update(torch.load(cached_file))
+        state_dict.update(torch.load(cached_file, weights_only=True))
 
     mdl.load_state_dict(state_dict)
 
