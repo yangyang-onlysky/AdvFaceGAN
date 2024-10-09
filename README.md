@@ -3,11 +3,19 @@ This project is a paper related code, training  GAN, generating adversarial face
 
 ## 1. prepare environment
 
-Suggestion use PyCharm IDE
+Suggestion use PyCharm IDE，and use shell bellow to set conda repository for avoid probably bugs:
 
-please ensure your computer has installed python3 and conda.
+```shell
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/pro
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+```
 
-The following shell installs the conda environment "frb" for preprocessing datasets with 1_prepDataset.ipynb:
+please ensure your computer has installed cuda、cudnn、python3 and conda.
+
+The following shell installs the conda environment "frb" for preprocessing original datasets(such as [casia-webface](https://www.kaggle.com/datasets/ntl0601/casia-webface)or[lfw](http://vis-www.cs.umass.edu/lfw/lfw-deepfunneled.tgz)) with 1_prepDataset.ipynb(**We suggests you download our preprocessed Datasets in "2. Download Everything You Need",or must install frb environment and preprocessing original datasets with Windows operating system,Because you may cann't install tensorflow-gpt 2.6 with Linux!!!**):
 
 ```shell
 conda deactivate
