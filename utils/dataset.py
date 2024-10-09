@@ -85,7 +85,7 @@ class Dataset():
                 image_names = os.listdir(class_dir)
                 image_paths = [os.path.join(class_dir, img_name) for img_name in image_names]
                 # 低于2张图的没法和自己做混淆攻击，忽略
-                if mode == "untarget" and len(image_paths) < 2:
+                if len(image_paths) < 2:
                     continue
                 images.extend(image_paths)
                 self.classes.append(DataClass(class_name=class_name,
