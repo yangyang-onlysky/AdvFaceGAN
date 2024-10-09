@@ -78,7 +78,6 @@ python train.py --config="configuration file path" --tms=["white-box models used
 # such as：
 # training    impersonation attack & pert=4 & with stloss & maxssim 0.97  result model：
 python train.py --config="config/target.ini" --pert=4 --output="./save_dir/target 4 8白盒 奇怪ssim" --maxssim=0.97
-
 ```
 
 After starting the training correctly, the following progress display will appear:
@@ -107,11 +106,11 @@ python test.py --config="config/target.ini" --model_path="./save_dir/target 3 8�
 
 Switch between two test modes by modifying the comment in the following position in test.py:
 
-[QQ_1728453694715](https://github.com/user-attachments/assets/25e572f6-28d2-4390-955f-e7398da8f151)
+![QQ_1728453694715](https://github.com/user-attachments/assets/25e572f6-28d2-4390-955f-e7398da8f151)
 
 The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the mobileface model FAR before the impersonation attack is 0.9974493, the model FAR after the impersonation attack is 0.108122, so the success rate of the impersonation attack is 0.9974493-0.108122=0.889372.
 
-![QQ_1726829742586](https://github.com/user-attachments/assets/c5ad22bc-db7e-47da-a0fc-c1ef6d99a61f)
+![QQ_1728457326717](https://github.com/user-attachments/assets/c0a599d7-bb92-45b9-960e-2f65a5ac0adf)
 
 The generate_fake function will generate a adversary face with the specified two images, source as the attacker and target as the victim, stored in the test folder at the root of the project.
 
