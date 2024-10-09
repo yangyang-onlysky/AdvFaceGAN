@@ -75,7 +75,8 @@ Open the command line at the root of the project code, execute the following scr
 ```
 python train.py --config="configuration file path" --tms=["white-box models used to training",] --pert=upperlimit of pertubation --output="save dir" --stlossfactor=stloss's factor --maxssim=upperlimit of ssim
 
-such as：
+# such as：
+# training    impersonation attack & pert=4 & with stloss & maxssim 0.97  result model：
 python train.py --config="config/target.ini" --pert=4 --output="./save_dir/target 4 8白盒 奇怪ssim" --maxssim=0.97
 
 ```
@@ -93,12 +94,12 @@ Open the command line at the root of the project code, execute the following scr
 ```
 python test.py --config="configuration file path" --model_path="directory of model's pth file" --epoch=target epoch
 
-例如：
-evaluation    impersonation attack & pert=4 & with stloss & epoch=990 model：
+# such as：
+# evaluation    impersonation attack & pert=4 & with stloss & epoch=990 model：
 python test.py --config="config/target.ini" --model_path="./save_dir/target 4 8白盒 奇怪ssim 97ssim/model" --epoch=990
-evaluation    impersonation attack & pert=3 & without stloss & epoch=990 model：
+# evaluation    impersonation attack & pert=3 & without stloss & epoch=990 model：
 python test.py --config="config/target.ini" --model_path="./save_dir/target 3 8白盒 无stloss/model" --epoch=990
-evaluation    impersonation attack & pert=3 & with stloss & epoch=850 model：
+# evaluation    impersonation attack & pert=3 & with stloss & epoch=850 model：
 python test.py --config="config/target.ini" --model_path="./save_dir/target 3 8白盒 奇怪ssim/model" --epoch=850
 ```
 
@@ -118,7 +119,7 @@ The generate_fake function will generate a adversary face with the specified two
 
 ## 5. evaluating commercial face API
 
-Firstly,Configure Aliyun, Tencent Cloud or face++ API key and secret in your System Environment Variables:
+Firstly,Configure Aliyun, Tencent Cloud or Face++'s API key and secret in your System Environment Variables:
 
 "ALIBABA_CLOUD_ACCESS_KEY_ID","ALIBABA_CLOUD_ACCESS_KEY_SECRET"
 
@@ -128,6 +129,6 @@ Firstly,Configure Aliyun, Tencent Cloud or face++ API key and secret in your Sys
 
 Then using 2_eval_aliyun.ipynb for Aliyun API、3_eval_Tencent.ipynb for Tencent API and 4_eval_faceplusplus.ipynb for Face++ API
 
-Or, You can also use the sample we generated in the "./test" folder, source.png is attacker face, target.png is victim face and so fake.png is the adversary face which will be judged as victim by Commercial face API!
+Or, You can also simply use the sample we generated in the "./test" folder, source.png is attacker face, target.png is victim face and so fake.png is the adversary face which will be judged as victim by Commercial face API!
 
 Commercial Face API such here：[Aliyun](https://vision.aliyun.com/experience/detail?spm=a2cvz.27720474.J_9219321920.16.be705d53Ftk66m&tagName=facebody&children=CompareFace) [Tencent](https://cloud.tencent.com/product/facerecognition) [face++](https://www.faceplusplus.com.cn/face-comparing/)
