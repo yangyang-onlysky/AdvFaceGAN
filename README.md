@@ -105,9 +105,9 @@ python test.py --config="config/target.ini" --model_path="./save_dir/target 3 8ç
 
 
 
-Switch between the two test modes by modifying the comment in the following position in test.py:
+Switch between two test modes by modifying the comment in the following position in test.py:
 
-![QQ_1726828270957](https://github.com/user-attachments/assets/34a6bad2-a478-46dc-916c-d119da82859f)
+[QQ_1728453694715](https://github.com/user-attachments/assets/25e572f6-28d2-4390-955f-e7398da8f151)
 
 The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the mobileface model FAR before the impersonation attack is 0.9974493, the model FAR after the impersonation attack is 0.108122, so the success rate of the impersonation attack is 0.9974493-0.108122=0.889372.
 
