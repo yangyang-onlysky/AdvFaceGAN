@@ -47,9 +47,13 @@ pip install -i https://mirrors.tencent.com/pypi/simple/ --upgrade tencentcloud-s
 The first is the substitute model that the training process needs :：[ckpts](https://drive.google.com/file/d/1l7tvppBVQfp2ZPiq-EYQ59bMtMaajTA3/view?usp=drive_link) ，This is required by starting the new training, please download and unzip it to the "./fr_models" directory.
 
 You'd better to download Datasets from my links:
+
 Dataset casia-webface: https://figshare.com/articles/dataset/casia-aligned-112x112/27073465?file=49308127
+
 Dataset lfw: https://figshare.com/articles/dataset/lfw-aligned-112x112/27073438
+
 Dataset ffhq: https://figshare.com/articles/dataset/ffhq-aligned-112x112/27073375
+
 Dataset celeba-hq: https://figshare.com/articles/dataset/celeba_hq-aligned-112x112_zip/27073291
 
 Then is the resulting model that the authors themselves trained using the code of this project, which can be used directly for testing：[save_dir](https://drive.google.com/file/d/1izxC23w_2beu7C-MF08uiwid_Bkb60bQ/view?usp=drive_link)，This is required to test the resulting model directly, so download and unzip it to the root of the project.
