@@ -15,7 +15,7 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/m
 
 please ensure your computer has installed cuda、cudnn、python3 and conda.
 
-The following shell installs the conda environment "frb" for preprocessing original datasets(such as [casia-webface](https://www.kaggle.com/datasets/ntl0601/casia-webface)or[lfw](http://vis-www.cs.umass.edu/lfw/lfw-deepfunneled.tgz)) with 1_prepDataset.ipynb(**We suggests you download our preprocessed Datasets in "2. Download Everything You Need",or must install frb environment and preprocessing original datasets with Windows operating system,Because you may cann't install tensorflow-gpt 2.6 with Linux!!!**):
+The following shell installs the conda environment "frb" for preprocessing original datasets(such as [casia-webface](https://www.kaggle.com/datasets/ntl0601/casia-webface)or[lfw](http://vis-www.cs.umass.edu/lfw/lfw-deepfunneled.tgz)) with 1_prepDataset.ipynb(**We suggests you download our preprocessed Datasets in "2. Download Everything You Need",or must install frb environment and preprocessing original datasets with Windows operating system,Because you may cann't install tensorflow-gpu 2.6 with Linux!!!**):
 
 ```shell
 conda deactivate
@@ -108,7 +108,7 @@ Switch between the two test modes by modifying the comment in the following posi
 
 ![QQ_1726828270957](https://github.com/user-attachments/assets/34a6bad2-a478-46dc-916c-d119da82859f)
 
-The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the mobileface model FAR before the impersonation attack is 0.9974493, the model FAR after the impersonation attack is 0.108122, and the success rate of the impersonation attack is 0.889372.
+The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the mobileface model FAR before the impersonation attack is 0.9974493, the model FAR after the impersonation attack is 0.108122, so the success rate of the impersonation attack is 0.9974493-0.108122=0.889372.
 
 ![QQ_1726829742586](https://github.com/user-attachments/assets/c5ad22bc-db7e-47da-a0fc-c1ef6d99a61f)
 
@@ -118,7 +118,7 @@ The generate_fake function will generate a adversary face with the specified two
 
 ## 5. evaluating commercial face API
 
-Firstly,Configure Aliyun, Tencent Cloud or face++ API key and secret in the system environment variables;Then using 2_eval_aliyun.ipynb for Aliyun API、3_eval_Tencent.ipynb for Tencent API and 4_eval_faceplusplus.ipynb for Face++ API
+Firstly,Configure Aliyun, Tencent Cloud or face++ API key and secret in your System Environment Variables:
 
 "ALIBABA_CLOUD_ACCESS_KEY_ID","ALIBABA_CLOUD_ACCESS_KEY_SECRET"
 
@@ -126,10 +126,8 @@ Firstly,Configure Aliyun, Tencent Cloud or face++ API key and secret in the syst
 
 "TENCENTCLOUD_SECRET_ID","TENCENTCLOUD_SECRET_KEY"
 
+Then using 2_eval_aliyun.ipynb for Aliyun API、3_eval_Tencent.ipynb for Tencent API and 4_eval_faceplusplus.ipynb for Face++ API
+
 Or, You can also use the sample we generated in the "./test" folder, source.png is attacker face, target.png is victim face and so fake.png is the adversary face which will be judged as victim by Commercial face API!
 
 Commercial Face API such here：[Aliyun](https://vision.aliyun.com/experience/detail?spm=a2cvz.27720474.J_9219321920.16.be705d53Ftk66m&tagName=facebody&children=CompareFace) [Tencent](https://cloud.tencent.com/product/facerecognition) [face++](https://www.faceplusplus.com.cn/face-comparing/)
-
-## 6. bug fix
-
-If there is an error about libiomp5md.dll, search for libiomp5md.dll in the conda environment AdvFaceGAN directory and delete the first one
