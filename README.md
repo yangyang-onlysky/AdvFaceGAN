@@ -7,7 +7,7 @@ Suggestion use PyCharm IDE
 
 please ensure your computer has installed python3 and conda.
 
-The following shell installs the conda environment "frb" for preprocessing data:
+The following shell installs the conda environment "frb" for preprocessing datasets with 1_prepDataset.ipynb:
 
 ```shell
 conda deactivate
@@ -24,7 +24,7 @@ conda install ipykernel -y
 python -m ipykernel install --user --name=frb --display-name "frb"
 ```
 
-The following shell installs the conda environment "AdvFaceGAN" for training and testing your model:
+The following shell installs the conda environment "AdvFaceGAN" for training and testing your result models:
 
 ```shell
 conda deactivate
@@ -42,11 +42,11 @@ pip install alibabacloud_facebody20191230
 pip install -i https://mirrors.tencent.com/pypi/simple/ --upgrade tencentcloud-sdk-python
 ```
 
-## 2. Download pretrained models
+## 2. Download Everything You Need
 
-The first is the substitute model that the training process needs :：[ckpts](https://drive.google.com/file/d/1l7tvppBVQfp2ZPiq-EYQ59bMtMaajTA3/view?usp=drive_link) ，This is required by starting the new training, please download and unzip it to the "./fr_models" directory.
+The first is the substitute white-box Fr models that the training process needs :：[ckpts](https://drive.google.com/file/d/1l7tvppBVQfp2ZPiq-EYQ59bMtMaajTA3/view?usp=drive_link) ，This is required by starting the new training process, please download and unzip it to the "./fr_models" directory.
 
-You'd better to download Datasets from my links:
+You can download our Datasets from these links:
 
 Dataset casia-webface: https://figshare.com/articles/dataset/casia-aligned-112x112/27073465?file=49308127
 
@@ -60,14 +60,14 @@ Then is the resulting model that the authors themselves trained using the code o
 
 ## 3. Start new training
 
-Open the command line at the root of the project code, execute the following script to call train.py to start training:
+Open the command line at the root of the project code, execute the following script to call train.py for start new training process:
 
-(The configuration policy for this project is to read the default configuration from the configuration file, and allow you to adjust the core training parameters using command line parameters)
+(The configuration policy for this project is to read the default configuration from the configuration file, and allow you to adjust the core training parameters using command line parameters(you can find these parameters's meaning from train.py's main function))
 
 ```
 python train.py --config="configuration file path" --tms=["white-box models used to training",] --pert=upperlimit of pertubation --output="save dir" --stlossfactor=stloss's factor --maxssim=upperlimit of ssim
 
-例如：
+such as：
 python train.py --config="config/target.ini" --pert=4 --output="./save_dir/target 4 8白盒 奇怪ssim" --maxssim=0.97
 
 ```
