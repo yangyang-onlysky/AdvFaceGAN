@@ -68,7 +68,7 @@ Then is the resulting model that the authors themselves trained using the code o
 
 ## 3. Start new training
 
-Open the command line at the root of the project code, execute the following script to call train.py for start new training process:
+Open the command line at the root of the project code, execute the following script to call train.py for start new training process,But don't forget to set your datasets' folder in the configuration file!
 
 (The configuration policy for this project is to read the default configuration from the configuration file, and allow you to adjust the core training parameters using command line parameters(you can find these parameters's meaning from train.py's main function))
 
