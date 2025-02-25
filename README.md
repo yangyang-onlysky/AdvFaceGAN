@@ -105,7 +105,7 @@ For Simple Evaluate result model, Switch between two test modes by modifying the
 
 ![test_mode.png](picture/test_mode.png)
 
-The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the ArcFace model FAR before the impersonation attack is 0.998333, the model FAR after the impersonation attack is 1-0.980167=0.019833.
+The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the ArcFace model 1-FAR before the impersonation attack is 0.997833, the model 1-FAR after the impersonation attack is 1-0.980333=0.019667.
 
 ![test1.png](picture/test1.png)
 
