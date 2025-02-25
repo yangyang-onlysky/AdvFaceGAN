@@ -83,7 +83,7 @@ python train.py --config="config/target.ini" --pert=4 --output="./save_dir/targe
 
 After starting the training correctly, the following progress display will appear:
 
-![QQ_1726830553089](https://github.com/user-attachments/assets/3e562e5f-7a65-41ee-8204-04c492366a6e)
+![training.png](picture/training.png)
 
 ## 4. Start your testing
 
@@ -101,17 +101,16 @@ python test.py --config="config/target.ini" --model_path="./save_dir/target 4 8�
 python test.py --config="config/target.ini" --model_path="./save_dir/target 5 8白盒 奇怪ssim 92ssim 双身份损失0.15/model" --epoch=2490
 ```
 
-Switch between two test modes by modifying the comment in the following position in test.py:
+For Simple Evaluate result model, Switch between two test modes by modifying the comment in the following position in test.py:
 
-[QQ_1728453694715](https://github.com/user-attachments/assets/25e572f6-28d2-4390-955f-e7398da8f151)
+![test_mode.png](picture/test_mode.png)
 
-The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the mobileface model FAR before the impersonation attack is 0.9974493, the model FAR after the impersonation attack is 0.108122, so the success rate of the impersonation attack is 0.9974493-0.108122=0.889372.
+The start_testing function reads the test_dataset_dir dataset in the configuration file, randomly selects 6000 sets of non-human faces to generate antagonistic faces, tests all models in the test_model_name_list, And output PSNR, MSE, SSIM, impersonation attack success rate and other evaluation indicators. In the figure below, the ArcFace model FAR before the impersonation attack is 0.998333, the model FAR after the impersonation attack is 1-0.980167=0.019833.
 
-![QQ_1726829742586](https://github.com/user-attachments/assets/c5ad22bc-db7e-47da-a0fc-c1ef6d99a61f)
+![test1.png](picture/test1.png)
 
 The generate_fake function will generate a adversary face with the specified two images, source as the attacker and target as the victim, stored in the test folder at the root of the project.
 
-![QQ_1726828955684](https://github.com/user-attachments/assets/c7c9e30a-8afd-4869-a2d1-18a2b0fe07e9)
 
 ## 5. evaluating commercial face API
 
