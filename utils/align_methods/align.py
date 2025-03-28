@@ -51,9 +51,12 @@ with tf.Graph().as_default():
     sess = tf.Session(config=config)
     with sess.as_default():
         pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
-
+num=0
+cnt=0
 #@profile
 def align(img, image_size=(112,112)):
+    global num
+    num+=1
     minsize = 20
     threshold = [0.6,0.7,0.9]
     factor = 0.85
@@ -67,17 +70,30 @@ def align(img, image_size=(112,112)):
     bounding_boxes, points = detect_face.detect_face(img, _minsize, pnet, rnet, onet, threshold, factor)
     nrof_faces = bounding_boxes.shape[0]
     if nrof_faces>0:
-       det = bounding_boxes[:,0:4]
-       img_size = np.asarray(img.shape)[0:2]
-       bindex = 0
-       if nrof_faces>1:
-          bounding_box_size = (det[:,2]-det[:,0])*(det[:,3]-det[:,1])
-          img_center = img_size / 2
-          offsets = np.vstack([ (det[:,0]+det[:,2])/2-img_center[1], (det[:,1]+det[:,3])/2-img_center[0] ])
-          offset_dist_squared = np.sum(np.power(offsets,2.0),0)
-          bindex = np.argmax(bounding_box_size-offset_dist_squared*2.0) # some extra weight on the centering
-       _bbox = bounding_boxes[bindex, 0:4]
-       _landmark = points[:, bindex].reshape( (2,5) ).T
+        det = bounding_boxes[:,0:4]
+        img_size = np.asarray(img.shape)[0:2]
+        bindex = 0
+        if nrof_faces>1:
+            bounding_box_size = (det[:,2]-det[:,0])*(det[:,3]-det[:,1])
+            img_center = img_size / 2
+            offsets = np.vstack([ (det[:,0]+det[:,2])/2-img_center[1], (det[:,1]+det[:,3])/2-img_center[0] ])
+            offset_dist_squared = np.sum(np.power(offsets,2.0),0)
+            bindex = np.argmax(bounding_box_size-offset_dist_squared*2.0) # some extra weight on the centering
+        _bbox = bounding_boxes[bindex, 0:4]
+        _landmark = points[:, bindex].reshape( (2,5) ).T
+        # # 在图像上绘制每个关键点
+        # for (x, y) in _landmark:
+        #     # 将坐标四舍五入转换为整数
+        #     center = (int(round(x)), int(round(y)))
+        #     # 绘制红色实心圆，半径为3像素
+        #     cv2.circle(img, center, radius=5, color=(0, 0, 255), thickness=-1)
+        #
+        #     # 保存结果图像
+        # cv2.imwrite('output_image.jpg', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    else:
+        global cnt
+        cnt+=1
+        print("未检测到人脸",cnt,num)
     warped, M = face_preprocess.preprocess(img, image_size=image_size, bbox=_bbox, landmark = _landmark)
     bgr = warped[...,:]
     return bgr, M

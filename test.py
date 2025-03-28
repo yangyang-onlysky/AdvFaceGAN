@@ -25,11 +25,11 @@ def main(args):
     model.eval()
 
     # Test the entire data set
-    model.start_testing()
+    # model.start_testing()
 
     # Generate a adversary face
-    # model.generate_fake(source_img_path=r"C:\yy\datasets\505\505-aligned-112x112\zxx\1.png",
-    #                     target_img_path=r"C:\yy\datasets\505\505-aligned-112x112\yy\1.png")
+    model.generate_fake(source_img_path=r"C:\yy\datasets\505\505-aligned-112x112\gj\1.png",
+                        target_img_path=r"C:\yy\datasets\505\505-aligned-112x112\yy\1.png")
 
 
 if __name__ == "__main__":
