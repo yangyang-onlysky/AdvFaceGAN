@@ -3,6 +3,8 @@ This project is a paper related code, training  GAN, generating adversarial face
 
 ## 1. prepare environment
 
+Please execute the following conda environment installation instructions in cmd instead of PowerShell!
+
 Suggestion use PyCharm IDE，and use shell bellow to set conda repository for avoid probably bugs(please ensure your computer has installed conda.):
 
 ```shell
