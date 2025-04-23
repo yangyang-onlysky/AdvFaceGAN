@@ -106,7 +106,7 @@ python test.py --config="config/target.ini" --model_path="./save_dir/target 5 8�
 
 ![test_mode.png](picture/test_mode.png)
 
-start_testing函数读取配置文件中的test_dataset_dir数据集，随机选取6000组非人脸生成对抗人脸，测试test_model_name_list中的所有模型，并输出PSNR、MSE、SSIM、冒充攻击成功率等评价指标。下图中，模拟攻击前的ArcFace模型1-FAR为0.997833，模拟攻击后的ArcFace模型1-FAR为1-0.980333=0.019667。
+start_testing函数读取配置文件中的test_dataset_dir数据集，随机选取6000组非人脸生成对抗人脸，测试test_model_name_list中的所有模型，并输出PSNR、MSE、SSIM、冒充攻击成功率等评价指标。下图中，冒充攻击前的ArcFace模型1-FAR为0.997833，冒充攻击后的ArcFace模型1-FAR为1-0.980333=0.019667。
 
 ![test1.png](picture/test1.png)
 
